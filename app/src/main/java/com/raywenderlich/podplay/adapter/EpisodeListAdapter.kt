@@ -37,10 +37,11 @@ class EpisodeListAdapter(
 
         holder.episodeViewData = episodeView
         holder.titleTextView.text = episodeView.title
-        holder.descTextView.text = HtmlUtils.htmlToSpannable(episodeView.description ?: "")
+        holder.descTextView.text =  HtmlUtils.htmlToSpannable(episodeView.description ?: "")
         holder.durationTextView.text = episodeView.duration
         holder.releaseDateTextView.text = episodeView.releaseDate?.let {
             DateUtils.dateToShortDate(it)
+        }
     }
 
     override fun getItemCount(): Int {

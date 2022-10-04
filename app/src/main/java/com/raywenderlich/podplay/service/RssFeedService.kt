@@ -6,7 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
 import org.w3c.dom.Node
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -38,13 +37,14 @@ class RssFeedService private constructor() {
             .baseUrl("${xmlFileURL.split("?")[0]}/")
             .build()
         service = retrofit.create(FeedService::class.java)
+
         try {
             val result = service.getFeed(xmlFileURL)
             if (result.code() >= 400) {
                 println("server error, ${result.code()}, ${result.errorBody()}")
                 return null
             } else {
-                var rssFeedResponse : RssFeedResponse? = null
+                var rssFeedResponse: RssFeedResponse?
                 val dbFactory = DocumentBuilderFactory.newInstance()
                 val dBuilder = dbFactory.newDocumentBuilder()
                 withContext(Dispatchers.IO) {
@@ -66,11 +66,14 @@ class RssFeedService private constructor() {
         if (node.nodeType == Node.ELEMENT_NODE) {
             val nodeName = node.nodeName
             val parentName = node.parentNode.nodeName
-
+            // 1
             val grandParentName = node.parentNode.parentNode?.nodeName ?: ""
+            // 2
             if (parentName == "item" && grandParentName == "channel") {
+                // 3
                 val currentItem = rssFeedResponse.episodes?.last()
                 if (currentItem != null) {
+                    // 4
                     when (nodeName) {
                         "title" -> currentItem.title = node.textContent
                         "description" -> currentItem.description = node.textContent
@@ -87,14 +90,14 @@ class RssFeedService private constructor() {
                     }
                 }
             }
-
             if (parentName == "channel") {
                 when (nodeName) {
                     "title" -> rssFeedResponse.title = node.textContent
                     "description" -> rssFeedResponse.description = node.textContent
                     "itunes:summary" -> rssFeedResponse.summary = node.textContent
                     "item" -> rssFeedResponse.episodes?.add(RssFeedResponse.EpisodeResponse())
-                    "pubDate" -> rssFeedResponse.lastUpdated = DateUtils.xmlDateToDate(node.textContent)
+                    "pubDate" -> rssFeedResponse.lastUpdated =
+                        DateUtils.xmlDateToDate(node.textContent)
                 }
             }
         }
@@ -118,6 +121,5 @@ interface FeedService {
         "Accept: application/xml"
     )
     @GET
-    suspend fun getFeed(@Url xmlFileURL: String):
-            Response<ResponseBody>
+    suspend fun getFeed(@Url xmlFileURL: String): Response<ResponseBody>
 }
