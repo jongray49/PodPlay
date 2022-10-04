@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtils {
-    fun jsonDateToShortDate(jsonDDate: String?): String {
+    fun jsonDateToShortDate(jsonDate: String?): String {
         if (jsonDate == null) {
             return "-"
         }
