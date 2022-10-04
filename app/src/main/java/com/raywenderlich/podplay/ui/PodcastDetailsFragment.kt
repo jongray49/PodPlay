@@ -13,6 +13,7 @@ class PodcastDetailsFragment : Fragment() {
 
     private val podcastViewModel: PodcastViewModel by activityViewModels()
     private lateinit var databinding: FragmentPodcastDetailsBinding
+    private lateinit var episodeListAdapter: EpisodeListAdapter
 
     companion object {
         fun newInstance(): PodcastDetailsFragment {
@@ -25,14 +26,40 @@ class PodcastDetailsFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         databinding = FragmentPodcastDetailsBinding.inflate(inflater, container, false)
         return databinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateControls()
+
+        podcastViewModel.podcastLiveData.observe(viewLifecycleOwner,
+            { viewData ->
+                if (viewData != null) {
+                    databinding.feedTitleTextView.text = viewData.feedTitle
+                    databinding.feedDescTextView.text = viewData.feedDesc
+                    activity?.let { activity ->
+                        Glide.with(activity).load(viewData.imageUrl).into(databinding.feedImageView)
+                    }
+                    databinding.feedDescTextView.movementMethod = ScrollingMovementMethod()
+                    databinding.episodeRecyclerView.setHasFixedSize(true)
+
+                    val layoutManager = LinearLayoutManager(activity)
+                    databinding.episodeRecyclerView.layoutManager = layoutManager
+
+                    val dividerItemDecoration = DividerItemDecoration(
+                        databinding.episodeRecyclerView.context, layoutManager.orientation
+                    )
+                    databinding.episodeRecyclerView.addItemDecoration(dividerItemDecoration)
+                    episodeListAdapter = EpisodeListAdapter(viewData.episodes)
+                    databinding.episodeRecyclerView.adapter = episodeListAdapter
+                }
+            })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

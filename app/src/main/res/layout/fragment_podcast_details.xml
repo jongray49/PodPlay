@@ -38,7 +38,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/feedImageView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/feedImageView"
-            app:layout_constraintTop_toTopOf="+id/feedImageView"/>
+            app:layout_constraintTop_toTopOf="@+id/feedImageView"/>
 
         <TextView
             android:id="@+id/feedDescTextView"
