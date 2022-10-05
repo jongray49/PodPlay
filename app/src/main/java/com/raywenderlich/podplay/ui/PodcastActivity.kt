@@ -45,6 +45,7 @@ class PodcastActivity : AppCompatActivity(), PodcastListAdapter.PodcastListAdapt
         setupToolbar()
         setupViewModels()
         updateControls()
+    createSubscription()
         handleIntent(intent)
         addBackListener()
     }
